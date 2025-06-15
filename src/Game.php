@@ -20,26 +20,53 @@ class Game
 
         foreach(range(1, self::FRAMES_PER_GAME) as $frame)
         {
-            //check for strike
-            if($this->rolls[$roll] === 10)
+            if($this->isStrike($roll))
             {
-                $score += $this->rolls[$roll];
-                $score += $this->rolls[$roll + 1] + $this->rolls[$roll + 2];
-                $roll += 1; // Move to next roll after strike
+                $score += $this->rolls[$roll] + $this->strikeBonus($roll);
+                $roll += 1;
                 continue;
             }
 
-            $score += $this->rolls[$roll] + $this->rolls[$roll + 1];
-            
+            $score += $this->defaultFrameScore($roll);
 
-            //check for spare
-            if($this->rolls[$roll] + $this->rolls[$roll + 1] === 10)
+            if($this->isSpare($roll))
             {
-                $score += $this->rolls[$roll + 2];
+                $score += $this->spareBonus($roll);
             }
+            
             $roll += 2;
         }
 
         return $score;
+    }
+
+    public function isStrike(int $roll): bool
+    {
+        return $this->pinCount($roll) === 10;
+    }
+
+    public function isSpare(int $roll): bool
+    {
+        return ($this->pinCount($roll) + $this->pinCount($roll + 1)) === 10;
+    }
+
+    public function defaultFrameScore(int $roll): int
+    {
+        return $this->pinCount($roll) + $this->pinCount($roll + 1);
+    }
+
+    public function strikeBonus(int $roll): int
+    {
+        return $this->pinCount($roll + 1) + $this->pinCount($roll + 2);
+    }
+
+    public function spareBonus(int $roll): int
+    {
+        return $this->pinCount($roll + 2);
+    }
+
+    public function pinCount($roll): int
+    {
+        return $this->rolls[$roll];
     }
 }

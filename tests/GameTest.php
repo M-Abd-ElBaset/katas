@@ -76,5 +76,40 @@ class GameTest extends TestCase
         $this->assertSame(24, $game->score());
     }
 
+    /** 
+     * @test
+    */
+    public function a_strike_on_the_final_frame_grants_two_extra_balls()
+    {
+        $game = new Game();
+
+        foreach (range(1, 18) as $roll)
+        {
+            $game->roll(0);
+        }
+
+        
+        $game->roll(10); // Strike
+
+        $game->roll(10);
+        $game->roll(10);
+
+        $this->assertSame(30, $game->score());
+    }
+
+    /** 
+     * @test
+    */
+    public function it_scores_a_perfect_game()
+    {
+        $game = new Game();
+
+        foreach (range(1, 20) as $roll)
+        {
+            $game->roll(10);
+        }
+
+        $this->assertSame(300, $game->score());
+    }
 
 }
