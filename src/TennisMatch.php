@@ -7,26 +7,64 @@ namespace App;
  */
 class TennisMatch
 {
-    protected int $playerOnePoints = 0;
-    protected int $playerTwoPoints = 0;
+
+    protected Player $playerOne;
+    protected Player $playerTwo;
+
+    public function __construct(Player $playerOne, Player $playerTwo)
+    {
+        $this->playerOne = $playerOne;
+        $this->playerTwo = $playerTwo;
+    }
 
     public function score() : string
     {
-        if($this->playerOnePoints > $this->playerTwoPoints) {
-            return "fifteen-love";
+        //check if we have a winner
+        if($this->hasWinner())
+        {
+            return "Winner: " . $this->leader()->name;
         }
-        return "love-love";
+
+        if($this->hasAdvantage())
+        {
+            return "Advantage: " . $this->leader()->name;
+        }
+
+
+        if($this->isDeuce()) 
+        {
+            return "deuce";
+        }
+
+        return sprintf("%s-%s",
+            $this->playerOne->toTerm(),
+            $this->playerTwo->toTerm()
+        );
     }
 
-    public function pointToPlayerOne() : void
+    protected function hasWinner(): bool
     {
-        // Logic to add a point to Player 1
-        $this->playerOnePoints++;
+        if(max($this->playerOne->points, $this->playerTwo->points) < 4)
+        {
+            return false;
+        }
+        
+        return abs($this->playerOne->points - $this->playerTwo->points) >= 2;   
     }
 
-    public function pointToPlayerTwo() : void
+    protected function hasAdvantage(): bool
     {
-        // Logic to add a point to Player 2
-        $this->playerTwoPoints++;
+        return $this->playerOne->points >=3 && $this->playerTwo->points >=3 && abs($this->playerOne->points - $this->playerTwo->points) === 1;
+    }
+
+    protected function leader(): Player
+    {
+        return $this->playerOne->points > $this->playerTwo->points ? $this->playerOne : $this->playerTwo;
+    }
+
+    protected function isDeuce(): bool
+    {
+        $canBeWon = $this->playerOne->points >= 3 && $this->playerTwo->points >= 3;
+        return $canBeWon && $this->playerOne->points === $this->playerTwo->points;
     }
 }
